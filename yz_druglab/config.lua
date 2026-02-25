@@ -122,8 +122,8 @@ Config.LabBlip = {
     label = 'Mit druglab',
 }
 
-Config.DiscordWebhookCreateLab = 'https://discord.com/api/webhooks/1474426068524859463/Ld5RS-3Ba5sbaJ5Dj_jerxCyWhJSevYy4SkWjpNrwe5Zk6m5NMQojf5JR8VqUgwIPBlW'
-Config.DiscordWebhookBuyLab = 'https://discord.com/api/webhooks/1474426119573999861/a0gfBXT-efOrOa_-3IT4iQhFwYuqykwJcgihbmeC5PRMbNzZXGU0QBnJ3jv4J-OUxa5H'
+Config.DiscordWebhookCreateLab = 'webhook-her'
+Config.DiscordWebhookBuyLab = 'webhook-her'
 
 Config.ShellBaseZEntrance = 2000.0
 Config.ShellBaseZLab = 2100.0
