@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrugLab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #242424;
+            --border-color: #333333;
+            --text-primary: #e4e4e7;
+            --text-secondary: #a1a1a1;
+            --accent-primary: #6f4979;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+        }
+
+        body {
+            font-family: 'PT Sans', sans-serif;
+            background-color: transparent;
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow: hidden;
+        }
+        #app {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            padding: 2rem;
+        }
+        #app.app-visible { animation: appFadeIn 0.35s ease forwards; }
+        #app.app-fade-out { animation: appFadeOut 0.35s ease forwards; }
+        @keyframes appFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes appFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .tablet-surface {
+            width: 960px;
+            height: 700px;
+            background: #0d0d0d;
+            border-radius: 36px;
+            box-shadow: inset 0 0 0 1px #babdbf, inset 0 0 1px 3px #e2e3e4;
+            padding: 28px;
+            position: relative;
+            z-index: 1;
+        }
+        .tablet-surface .container {
+            width: 904px;
+            height: 644px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            border: 2px solid #121212;
+            border-radius: 11px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .header-title { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.5px; margin: 0; }
+        .header-status { display: flex; gap: 1.25rem; align-items: center; font-size: 0.875rem; }
+        .status-item { display: flex; align-items: center; gap: 0.6rem; background-color: var(--bg-tertiary); padding: 0.6rem 1.2rem; border-radius: 0.5rem; border: 1px solid var(--border-color); }
+        .status-indicator { width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: var(--accent-success); flex-shrink: 0; }
+.header-close { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0; border-radius: 0.5rem; cursor: pointer; font-size: 1.4rem; line-height: 1; margin-left: auto; width: 2.25rem; height: 2.25rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.header-close:hover { background: var(--accent-danger); border-color: var(--accent-danger); }
+
+        .main-content { display: flex; flex: 1; overflow: hidden; flex-direction: column; min-height: 0; }
+        .tabs-container { background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; padding: 0 2.25rem; gap: 0.25rem; overflow-x: auto; flex-shrink: 0; }
+        .tab-button { background: none; border: none; color: var(--text-secondary); padding: 1.25rem 1.5rem; font-size: 0.95rem; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s ease; white-space: nowrap; font-weight: 500; margin-bottom: -1px; }
+        .tab-button:hover { color: var(--text-primary); }
+        .tab-button.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+        .tab-content { flex: 1; overflow-y: auto; padding: 2.25rem; display: none; min-height: 0; }
+        .tab-content.active { display: block; }
+        .content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
+
+        .stock-grid { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; margin-bottom: 2rem; }
+        .stock-grid.stock-grid--empty { display: flex; align-items: center; justify-content: center; min-height: 280px; }
+        .stock-empty { color: var(--text-secondary); font-size: 1.25rem; font-weight: 500; }
+        .stash-item { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 420px; padding: 1rem 1.5rem; margin-bottom: 0.5rem; background-color: #141414; border: 1px solid #1a1a1a; border-radius: 0.5rem; }
+        .stash-item:last-child { margin-bottom: 0; }
+        .stash-item-name { font-size: 1rem; font-weight: 500; color: var(--text-primary); }
+        .stash-item-qty { font-size: 1rem; color: var(--text-secondary); }
+
+        .members-section { background-color: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 0.75rem; overflow: hidden; margin-top: 0.5rem; }
+        .members-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.75rem; border-bottom: 1px solid var(--border-color); }
+        .members-header-title { font-size: 1.125rem; font-weight: 600; margin: 0; }
+        .members-table { width: 100%; border-collapse: collapse; }
+        .members-table thead { background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .members-table th { padding: 1.1rem 1.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .members-table td { padding: 1.1rem 1.75rem; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+        .members-table tbody tr:hover { background-color: rgba(59, 130, 246, 0.05); }
+        .member-name { font-weight: 500; }
+        .member-role { background-color: var(--bg-secondary); padding: 0.25rem 0.75rem; border-radius: 0.35rem; font-size: 0.8rem; display: inline-block; border: 1px solid var(--accent-primary); color: var(--accent-primary); }
+        .member-actions { display: flex; gap: 0.6rem; }
+        .action-btn { background-color: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 0.5rem 1rem; border-radius: 0.35rem; cursor: pointer; font-size: 0.8rem; transition: all 0.2s ease; }
+        .action-btn:hover { background-color: var(--accent-danger); border-color: var(--accent-danger); color: white; }
+        .action-btn.edit:hover { background-color: var(--accent-primary); border-color: var(--accent-primary); }
+        .add-member-btn { background-color: var(--accent-primary); border: none; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; cursor: pointer; font-weight: 600; transition: all 0.2s ease; font-size: 0.95rem; }
+        .add-member-btn:hover { background-color: #2563eb; transform: translateY(-2px); }
+
+        .logs-container { background-color: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 0.75rem; overflow: hidden; display: flex; flex-direction: column; max-height: 380px; margin-top: 0.5rem; }
+        .logs-header { padding: 1.5rem 1.75rem; border-bottom: 1px solid var(--border-color); font-size: 1.125rem; font-weight: 600; }
+        .logs-list { overflow-y: auto; flex: 1; }
+        .log-entry { padding: 1.1rem 1.75rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; gap: 1.25rem; }
+        .log-entry:last-child { border-bottom: none; }
+        .log-entry:hover { background-color: rgba(59, 130, 246, 0.05); }
+        .log-content { flex: 1; min-width: 0; }
+        .log-message { font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--text-primary); }
+        .log-meta { font-size: 0.8rem; color: var(--text-secondary); }
+        .log-type { padding: 0.25rem 0.75rem; border-radius: 0.35rem; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+        .log-type.action { background-color: rgba(59, 130, 246, 0.2); color: var(--accent-primary); }
+        .log-type.warning { background-color: rgba(245, 158, 11, 0.2); color: var(--accent-warning); }
+        .log-type.error { background-color: rgba(239, 68, 68, 0.2); color: var(--accent-danger); }
+        .log-type.success { background-color: rgba(16, 185, 129, 0.2); color: var(--accent-success); }
+
+        .tab-content h2 { margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 600; }
+        .tab-content > * + * { margin-top: 0; }
+
+        .production-area { margin-bottom: 1.75rem; }
+        .production-stage { margin-bottom: 1.25rem; }
+        .production-stage .stage-title { font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .production-buttons { display: flex; gap: 1.25rem; margin-bottom: 1.25rem; }
+        .production-buttons button { padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; }
+        .production-buttons .btn-start { background: var(--accent-success); color: white; }
+        .production-buttons .btn-pause { background: var(--accent-warning); color: white; }
+        .production-buttons .btn-stop { background: var(--accent-danger); color: white; }
+        .production-alert { padding: 1.1rem 1.25rem; border-radius: 0.5rem; margin-bottom: 1.25rem; background: rgba(245, 158, 11, 0.15); border: 1px solid var(--accent-warning); color: var(--accent-warning); display: none; }
+        .production-alert.show { display: block; }
+        .production-status-log { font-size: 0.85rem; color: var(--text-secondary); max-height: 220px; overflow-y: auto; padding-top: 0.5rem; }
+
+        #app ::-webkit-scrollbar { width: 0; height: 0; display: none; }
+        #app * { scrollbar-width: none; -ms-overflow-style: none; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 2rem; max-width: 500px; width: 90%; }
+        .modal-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-primary); }
+        .form-input { width: 100%; background-color: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.95rem; }
+        .form-input:focus { outline: none; border-color: var(--accent-primary); }
+        .modal-buttons { display: flex; gap: 1rem; margin-top: 2rem; }
+        .modal-btn { flex: 1; padding: 0.75rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+        .modal-btn.primary { background-color: var(--accent-primary); color: white; }
+        .modal-btn.secondary { background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+
+        .keypad-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
+        .keypad-overlay.show { display: flex; }
+        .keypad-box { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.85rem; padding: 1.75rem; min-width: 320px; }
+        .keypad-title { font-size: 1.35rem; font-weight: 600; margin-bottom: 1rem; text-align: center; }
+        .keypad-display { font-size: 2.2rem; letter-spacing: 0.6rem; text-align: center; margin-bottom: 1.5rem; font-family: monospace; }
+        .keypad-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-bottom: 1rem; }
+        .keypad-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 1rem; border-radius: 0.5rem; cursor: pointer; font-size: 1.35rem; }
+        .keypad-btn:hover { border-color: var(--accent-primary); background: rgba(59, 130, 246, 0.1); }
+        .keypad-cancel { width: 100%; padding: 0.85rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 0.5rem; cursor: pointer; font-size: 0.95rem; }
+        .keypad-cancel:hover { border-color: var(--accent-danger); color: var(--accent-danger); }
+
+        .terminal-loading { position: absolute; inset: 0; background: var(--bg-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; z-index: 10; transition: opacity 0.25s ease; }
+        .terminal-loading.hidden { opacity: 0; pointer-events: none; }
+        .terminal-loading-spinner { width: 48px; height: 48px; border: 4px solid var(--border-color); border-top-color: var(--accent-primary); border-radius: 50%; animation: terminalSpinner 0.9s linear infinite; }
+        .terminal-loading-text { font-size: 0.95rem; color: var(--text-secondary); font-weight: 500; }
+        @keyframes terminalSpinner { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="keypad-overlay" id="keypadOverlay">
+        <div class="keypad-box">
+            <div class="keypad-title">Indtast kode</div>
+            <div class="keypad-display" id="keypadDisplay">____</div>
+            <div class="keypad-buttons">
+                <button type="button" class="keypad-btn" data-digit="1">1</button>
+                <button type="button" class="keypad-btn" data-digit="2">2</button>
+                <button type="button" class="keypad-btn" data-digit="3">3</button>
+                <button type="button" class="keypad-btn" data-digit="4">4</button>
+                <button type="button" class="keypad-btn" data-digit="5">5</button>
+                <button type="button" class="keypad-btn" data-digit="6">6</button>
+                <button type="button" class="keypad-btn" data-digit="7">7</button>
+                <button type="button" class="keypad-btn" data-digit="8">8</button>
+                <button type="button" class="keypad-btn" data-digit="9">9</button>
+                <button type="button" class="keypad-btn keypad-back" id="keypadBack">⌫</button>
+                <button type="button" class="keypad-btn" data-digit="0">0</button>
+                <button type="button" class="keypad-btn keypad-ok" id="keypadOk">OK</button>
+            </div>
+            <button type="button" class="keypad-cancel" id="keypadCancel">Annuller</button>
+        </div>
+    </div>
+
+    <div id="app" style="display: none;">
+        <div class="tablet-surface">
+            <div class="container">
+                <div class="header">
+            <div class="header-title" id="headerTitle">Druglab</div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button type="button" class="header-close" id="btnClose" title="Luk">×</button>
+            </div>
+                </div>
+                <div class="tabs-container">
+            <button class="tab-button active" data-tab="stock">Lager</button>
+            <button class="tab-button" data-tab="members">Medlemmer</button>
+            <button class="tab-button" data-tab="logs">Log</button>
+            <button class="tab-button" data-tab="settings" id="tabSettings" style="display: none;">Indstillinger</button>
+                </div>
+                <div class="terminal-loading" id="terminalLoading">
+                    <div class="terminal-loading-spinner"></div>
+                    <span class="terminal-loading-text">Indlæser...</span>
+                </div>
+                <div class="main-content">
+                    <div class="content">
+                <div class="tab-content active" id="stock">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="margin: 0; font-size: 1.5rem;">Nuværende lager</h2>
+                        <button type="button" class="add-member-btn" id="btnOpenStash" style="display: block;">Åbn lager</button>
+                    </div>
+                    <div class="stock-grid" id="stockGrid"></div>
+                </div>
+
+                <div class="tab-content" id="members">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="font-size: 1.5rem;">Medlemmer</h2>
+                        <button class="add-member-btn" id="btnAddMember" style="display: none;">+ Tilføj medlem</button>
+                    </div>
+                    <div class="members-section">
+                        <table class="members-table">
+                            <thead>
+                                <tr><th>Navn</th><th>Discord</th><th>Handling</th></tr>
+                            </thead>
+                            <tbody id="membersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="logs">
+                    <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Aktivitetslog</h2>
+                    <div class="logs-container">
+                        <div class="logs-header">Adgang & system</div>
+                        <div class="logs-list" id="logsList"></div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="settings">
+                    <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Indstillinger</h2>
+                    <div class="members-section" id="settingsCodeSection">
+                        <div class="members-header">
+                            <span class="members-header-title">Adgangskode til labbet</span>
+                        </div>
+                        <div style="padding: 1.5rem 1.75rem;">
+                            <button type="button" class="add-member-btn" id="btnChangeCode">Ændr kode</button>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="changeCodeModal">
+        <div class="modal-content">
+            <div class="modal-title">Ændr adgangskode</div>
+            <div class="form-group">
+                <label class="form-label">Ny kode (4 cifre)</label>
+                <input type="text" class="form-input" placeholder="1234" id="newCodeInput" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="modal-btn primary" id="changeCodeConfirm">Gem kode</button>
+                <button type="button" class="modal-btn secondary" id="changeCodeCancel">Annuller</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="addMemberModal">
+        <div class="modal-content">
+            <div class="modal-title">Tilføj medlem</div>
+            <div class="form-group">
+                <label class="form-label">Discord identifier</label>
+                <input type="text" class="form-input" placeholder="fx discord:123456789" id="memberIdentifier">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Navn (valgfrit)</label>
+                <input type="text" class="form-input" placeholder="Visningsnavn" id="memberName">
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="modal-btn primary" id="modalAddConfirm">Tilføj</button>
+                <button type="button" class="modal-btn secondary" id="modalAddCancel">Annuller</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="drug-lab.js"></script>
+</body>
+</html>
